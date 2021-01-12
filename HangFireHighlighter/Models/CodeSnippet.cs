@@ -12,7 +12,7 @@ namespace HangFireHighlighter.Models
         public string SourceCode { get; set; }
         public string HighlightedCode { get; set; }
 
-        public DateTime dateTime { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime? HighlightedAt { get; set; }
     }
 }

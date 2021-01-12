@@ -135,6 +135,10 @@
     <Compile Include="Migrations\202101121456178_AddCodeSnippet.designer.cs">
       <DependentUpon>202101121456178_AddCodeSnippet.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202101121508592_UpdateCodeSnippet.cs" />
+    <Compile Include="Migrations\202101121508592_UpdateCodeSnippet.designer.cs">
+      <DependentUpon>202101121508592_UpdateCodeSnippet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CodeSnippet.cs" />
     <Compile Include="Models\HighlighterDbContext.cs" />
@@ -174,6 +178,8 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Create.cshtml" />
+    <Content Include="Views\Home\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -194,6 +200,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202101121456178_AddCodeSnippet.resx">
       <DependentUpon>202101121456178_AddCodeSnippet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202101121508592_UpdateCodeSnippet.resx">
+      <DependentUpon>202101121508592_UpdateCodeSnippet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
