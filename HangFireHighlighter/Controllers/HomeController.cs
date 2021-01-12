@@ -1,6 +1,9 @@
 ﻿using HangFireHighlighter.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace HangFireHighlighter.Controllers
@@ -27,16 +30,29 @@ namespace HangFireHighlighter.Controllers
         [HttpPost]
         public ActionResult Create([Bind(Include ="SourceCode")] CodeSnippet snippet)
         {
-            if (ModelState.IsValid)
+            try
             {
-                snippet.CreatedAt = DateTime.UtcNow;
+                if (ModelState.IsValid)
+                {
+                    snippet.CreatedAt = DateTime.UtcNow;
 
-                _db.CodeSnippets.Add(snippet);
-                _db.SaveChanges();
+                    using (StackExchange.Profiling.MiniProfiler.StepStatic("Service call"))
+                    {
+                        snippet.HighlightedCode = HighlightSource(snippet.SourceCode);
+                        snippet.HighlightedAt = DateTime.UtcNow;
+                    }
 
-                return RedirectToAction("Details", new { id = snippet.Id });
+                    _db.CodeSnippets.Add(snippet);
+                    _db.SaveChanges();
+
+                    return RedirectToAction("Details", new { id = snippet.Id });
+                }
             }
-
+            catch (HttpRequestException)
+            {
+                ModelState.AddModelError("", "Highlighting service returned error. Try again later");
+            }
+            
             return View(snippet);
         }
 
@@ -47,6 +63,36 @@ namespace HangFireHighlighter.Controllers
                 _db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private static async Task<string> HighlightSourceAsync(string source)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync(
+                    @"http://hilite.me/api",
+                    new FormUrlEncodedContent(new Dictionary<string, string>
+                    {
+                        { "lexer", "c#" },
+                        { "style", "vs" },
+                        { "code", source }
+                    }
+                    ));
+
+                response.EnsureSuccessStatusCode();
+
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
+
+        private static string HighlightSource(string source)
+        {
+            return RunSync(() => HighlightSourceAsync(source));
+        }
+
+        private static TResult RunSync<TResult>(Func<Task<TResult>> func)
+        {
+            return Task.Run<Task<TResult>>(func).Unwrap().GetAwaiter().GetResult();
         }
     }
 }
